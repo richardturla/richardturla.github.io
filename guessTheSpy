@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Guess The Spy</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" href="assets/css/index.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.0.js"></script>
+
+    </head>
+    <body>
+
+        <div class="row">
+            <div class="col-md-12">
+                <p class="app-title">
+                    Lorem Ipsum Dolor
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center" style="margin-bottom: 5%;">
+                <input type="text" class="d1" id="username" placeholder="Enter Username"> 
+                <button id="submitUsername" class="d1">Submit</button>
+            </div>
+
+            <div class="col-md-12 text-center">
+                <input type="text" id="channelCode"  class="d2"placeholder="Enter Channel Code" disabled readonly> 
+                <button id="submitChannel" disabled class="d2">Submit</button>
+            </div>
+            <div class="col-md-12 text-center">
+                <b id="channelRoom"></b>
+            </div>
+            <br>
+            <hr>
+            <p class="text-center">
+                <b>USERS</b>
+            </p>
+            <div class="col-md-12 text-center" id="messages"></div>
+        </div>
+
+        
+
+
+
+
+    </body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script type="text/javascript" src="assets/js/index.js"></script>
+<script>
+    var DEFINED_CHANNEL = null;
+    var DEFINED_USERNAME = null;
+  
+
+    messages2 = document.getElementById('user_list');
+
+    $('#submitUsername').click(function(){
+        DEFINED_USERNAME = document.getElementById('username').value;
+
+        $('.d2').removeAttr('readonly');
+        $('.d2').removeAttr('disabled');
+
+        $('.d1').attr('readonly','');
+        $('.d1').attr('disabled','');
+    });
+    function viewThis(id){
+        document.getElementById(id).scrollIntoView();
+    }
+
+
+
+    const buttonClick = () => {
+        var input = document.getElementById('message-body');
+        if(input.value.length > 0){
+            // recordChat(input.value);
+            publishMessage(input.value);
+            input.value = '';
+        }
+
+    };
+    var thread = "";
+    var threadCtr = 0;
+    const showMessage = (msg) => {
+        threadCtr++;
+
+      
+            classThis = 'inner-chat-other';
+
+            // console.log('qqqqqqqqq');
+        
+        
+        thread += message = `
+                            <li> `+msg.description+`</li>
+                            `;
+      
+        fg = document.getElementById('messages').innerHTML = '<ul>'+thread+'</ul>';
+        // document.getElementById('tr_'+threadCtr).scrollIntoView();
+
+    };
+
+    let pubnub;
+    // const setupPubNub = () => {
+
+    // };
+
+    $('#submitChannel').click(function(){
+        DEFINED_CHANNEL = document.getElementById('channelCode').value;
+        // Update this block with your publish/subscribe keys
+        pubnub = new PubNub({
+            publishKey : "pub-c-2655bd6e-c7dd-48f6-bdf2-6ed1a08d5583",
+            subscribeKey : "sub-c-59190a4a-a7bc-44e3-b5bf-cd873d66a51d",
+            userId: "sec-c-MzZlOWRjODYtNmUzMy00YjFhLThjNTMtYTg2YzZkYjUyMTg0"
+        });
+        // add listener
+        const listener = {
+            status: (statusEvent) => {
+                if (statusEvent.category === "PNConnectedCategory") {
+                    console.log("Connected "+DEFINED_CHANNEL);
+                    document.getElementById('channelRoom').innerHTML = "Room: "+DEFINED_CHANNEL;
+                }
+            },
+            message: (messageEvent) => {
+                showMessage(messageEvent.message);
+                // console.log(messageEvent.message);
+            },
+            presence: (presenceEvent) => {
+                // handle presence
+            }
+        };
+        pubnub.addListener(listener);
+        // subscribe to a channel
+        pubnub.subscribe({
+            channels: [DEFINED_CHANNEL]
+        });
+
+        publishMessage(DEFINED_USERNAME);
+    });
+
+
+    // publish message
+    const publishMessage = async (message) => {
+        // With the right payload, you can publish a message, add a reaction to a message,
+        // send a push notification, or send a small payload called a signal.
+        const publishPayload = {
+            channel : DEFINED_CHANNEL,
+            message: {
+                title: "Channel",
+                description: message,
+                user_id: 2,
+                dateTime: dateTimeNew(),
+            }
+        };
+        await pubnub.publish(publishPayload);
+    }
+
+
+    function dateTimeNew(){
+        return timestamp = "2024-01-11 21:37:01";
+    }
+    </script>
